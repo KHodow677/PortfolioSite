@@ -16,7 +16,7 @@ const RockPaperScissors = () => {
     setPlayerChoice(choice);
     setComputerChoice(computerChoice);
     setAnimate(true);
-    setTimeout(() => setAnimate(false), 1000);
+    setTimeout(() => setAnimate(false), 500);
   };
 
   const getResult = () => {

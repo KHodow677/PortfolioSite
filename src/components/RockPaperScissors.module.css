@@ -72,7 +72,7 @@
 }
 
 .animate {
-  animation: bounce 1s;
+  animation: bounce 0.5s;
 }
 
 @keyframes bounce {
