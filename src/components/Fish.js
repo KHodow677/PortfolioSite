@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
-import Constant from './Constants'
+import Constant from './Constants';
 
 class Fish extends Component {
   constructor() {
     super();
-    const buffer = 350;
+    const bufferWRight = 500;
+    const bufferHBot = 600;
     const x = typeof window !== 'undefined'
-      ? Math.random() * ((window.innerWidth - buffer) - Constant.max_scale_factor * Constant.image_width)
+      ? Math.random() * ((window.innerWidth - bufferWRight) - Constant.max_scale_factor * Constant.image_width)
       : 0;
 
     const y = typeof window !== 'undefined'
-      ? Math.random() * ((window.innerHeight - buffer) - Constant.max_scale_factor * Constant.image_height)
+      ? Math.random() * ((window.innerHeight - bufferHBot) - Constant.max_scale_factor * Constant.image_height)
       : 0;
 
     this.state = {
@@ -35,63 +36,59 @@ class Fish extends Component {
       yVelocity: yVelocity,
       xDirection: xDirection,
       yDirection: yDirection,
-    })
+    });
   }
 
   tick() {
     this.move();
-    if(Math.random() < Constant.chance_to_change_direction) {
+    if (Math.random() < Constant.chance_to_change_direction) {
       this.chooseRandomMovement();
     }
   }
 
   relocate() {
-    const buffer = 350;
+    const bufferWRight = 500;
+    const bufferHBot = 600;
   
     this.setState({
-      x: Math.random() * ((window.innerWidth - buffer) - Constant.max_scale_factor * Constant.image_width),
-      y: Math.random() * ((window.innerHeight - buffer) - Constant.max_scale_factor * Constant.image_height),
+      x: Math.random() * ((window.innerWidth - bufferWRight) - Constant.max_scale_factor * Constant.image_width),
+      y: Math.random() * ((window.innerHeight - bufferHBot) - Constant.max_scale_factor * Constant.image_height),
       yDirection: 'down',
       yVelocity: 1,
-    })
+    });
   }
   
 
   move() {
     const bufferWLeft = 0;
-    const bufferWRight = 400;
+    const bufferWRight = 500;
     const bufferHBot = 600;
     const bufferHTop = 0;
-    let { xVelocity, xDirection, yVelocity, yDirection } = this.state;
+    const { x, xVelocity, xDirection, y, yVelocity, yDirection } = this.state;
+    const newX = x + (xDirection === 'right' ? -xVelocity : xVelocity);
+    const newY = y + (yDirection === 'down' ? -yVelocity : yVelocity);
   
-    if (this.state.x > (window.innerWidth - bufferWRight) || this.state.y > (window.innerHeight - bufferHBot)) {
-      this.relocate(); // if the fish is outside the window (window was resized, probably)
+    if (newX > ((window.innerWidth - bufferWRight) - 0.5 * Constant.image_width)) {
+      this.setState({ xDirection: 'right' });
+    } else if (newX < bufferWLeft + 0.5 * Constant.image_width) {
+      this.setState({ xDirection: 'left' });
     }
   
-    if (this.state.x > ((window.innerWidth - bufferWRight) - 0.5 * Constant.image_width)) {
-      xDirection = 'right'; // change from 'left' to 'right'
-    } else if (this.state.x < bufferWLeft + 0.5 * Constant.image_width) {
-      xDirection = 'left'; // change from 'right' to 'left'
+    if (newY > ((window.innerHeight - bufferHBot) - 0.5 * Constant.image_height)) {
+      this.setState({ yDirection: 'down' });
+    } else if (newY < bufferHTop + 0.5 * Constant.image_height) {
+      this.setState({ yDirection: 'up' });
     }
-  
-    if (this.state.y > ((window.innerHeight - bufferHBot) - 0.5 * Constant.image_height)) {
-      yDirection = 'down'; // change from 'up' to 'down'
-    } else if (this.state.y < bufferHTop + 0.5 * Constant.image_height) {
-      yDirection = 'up'; // change from 'down' to 'up'
-    }
-  
-    const newX = this.state.x + (xDirection === 'right' ? -xVelocity : xVelocity); // swap direction values
-    const newY = this.state.y + (yDirection === 'down' ? -yVelocity : yVelocity); // swap direction values
   
     this.setState({
       x: newX,
-      xDirection: xDirection,
       y: newY,
-      yDirection: yDirection,
-    })
+    }, () => {
+      if (newX > (window.innerWidth - bufferWRight) || newY > (window.innerHeight - bufferHBot)) {
+        this.relocate();
+      }
+    });
   }
-
- 
 
   componentDidMount() {
     this.timerID = setInterval(
@@ -100,25 +97,26 @@ class Fish extends Component {
   }
 
   render() {
-    const xScale = this.state.xDirection === 'left' ? 0.5 : -0.5;
+    const { x, y, xDirection } = this.state;
+    const xScale = xDirection === 'left' ? 0.5 : -0.5;
     const yScale = 0.5;
-  
+    const left = x - Constant.image_width / 2;
+    const top = y + Constant.image_height / 2;
+    
     return (
-        <img
-          src={this.props.image}
-          alt={this.props.alt}
-          style={{
-            position: 'absolute',
-            left: this.state.x - Constant.image_width / 2,
-            top: this.state.y + Constant.image_height / 2,
-            transform: `scaleX(${xScale}) scaleY(${yScale})`
-          }}
-        />
-      );      
+      <img
+        src={this.props.image}
+        alt={this.props.alt}
+        style={{
+          position: 'absolute',
+          left: `${left}px`,
+          top: `${top}px`,
+          transform: `scaleX(${xScale}) scaleY(${yScale})`
+        }}
+      />
+    );
   }
   
-  
-
 
   componentWillUnmount() {
     clearInterval(this.timerID);
