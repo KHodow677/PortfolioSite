@@ -1,0 +1,25 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+}
+
+.water {
+  background-color: black;
+  opacity: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+.fish {
+  position: absolute;
+  transform-origin: center center;
+  transition: transform 0.2s ease-out;
+}
+
